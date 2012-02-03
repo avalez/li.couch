@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="keywords" content=""/>
+    <meta name="description" content="Li is a real-time collaborative todo list."/>
+
+    <link rel="shortcut icon" type="image/gif" href="favicon.gif"/>
+
+    <title>Li</title>
+    <link href="layout.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="jquery-1.6.min.js"></script>
+    <script type="text/javascript" src="jquery.tmpl.min.js"></script>
+    <script type="text/javascript" src="jquery.ba-hashchange.min.js"></script>
+    <script type="text/javascript" src="knockout-1.2.1.js"></script>
+    <script type="text/javascript" src="site.js"></script>
+</head>
+
+<body>
+<header>
+    <a id="lock" href="#">
+        <span class="locked-hint">unlock this room</span>
+        <span class="unlocked-hint">lock this room</span>
+
+        <div></div>
+    </a>
+</header>
+
+<div id="page" style="display:block">
+    <input id="title" type="text" data-bind="value: parent.name, editing: parent.editing"/>
+
+    <div id="new-wrapper">
+        <input id="new" type="text" maxlength="256" data-bind="value: newItem, editing: editingNewItem"/>
+        <ul class="tokens"></ul>
+    </div>
+    <ul id="list" data-bind='template: {name: "todo-template", foreach: children}'></ul>
+</div>
+
+<div id="not-found" style="display: none">
+    <h1>There is nothing at this location.</h1>
+
+    <p><a id="create" data-bind="click: function() {create('root', 'Li', function(error, doc) { $('div#not-found').hide(); window.location.hash = '#/' + doc._id })}">Would you like me to create a LIst here?</a></p>
+</div>
+
+<div id="password-protect" class="overlay" style="display:none">
+    <div class="password">
+        <label>What password would you like to use?</label>
+        <input type="password" name="" value=""/>
+        <a href="#" class="close" data-action="close">cancel</a>
+        <span></span>
+    </div>
+</div>
+
+<div id="password-authenticate" class="overlay" style="display:none">
+    <div class="password">
+        <label>Password?</label>
+        <input type="password" name="" value=""/>
+    </div>
+</div>
+
+<footer>
+    <p>li.iriscouch.com &middot; <a data-action="about"
+                                    data-bind="click: function() { $('div#about').toggle() }">about</a> &middot; <a
+            href="http://github.com/avalez/couchtasks">source</a></p>
+
+    <div id="about" style="display: none">
+        <p>
+            Hi there, my name is Li. I am a real-time, collaborative LIst.
+        </p>
+
+        <p>
+            I'm created from <a href="http://thingler.com">Thingler real-time, collaborative Todo List</a>
+            as a pure <a href="http://couchapp.org">Couch Application</a> by <a href="azhdanov@gmail.com">Andriy
+            Zhdanov</a>.
+            I'm powered by <a href="http://couchdb.apache.org">CouchDB</a> and was built entirely in JavaScript,
+            using <a href="http://knockoutjs.com/">Knockout</a>.
+            My <a href="http://code.google.com/p/yogamamadvd/source/browse/#svn%2Fbranches%2Fcouchapp">code</a> is
+            available and open-source&mdash;feel free to browse.
+        </p>
+    </div>
+    <p>Copyright &copy; 2011 <a href="mailto:azhdanov@gmail.com">Andriy Zhdanov</a></p>
+</footer>
+
+<script type="text/html" id="todo-template">
+    <li data-bind="css: {completed:completed, editing:editing}">
+        <input type="checkbox" data-bind="checked: completed"/>
+        <input type="text" data-bind="value: name, visible: editing(), editing: editing"/>
+        <a data-bind="text: name, visible: !editing(), attr: {href: '#/' + _id} "/>
+        <ul class="tokens"></ul>
+        <div class="actions">
+            <a data-action="edit" data-bind="click: function() { editing(true) }">&#x270E;</a>
+            <a data-action="remove" data-bind="click: remove">&#x2717;</a>
+        </div>
+        <ul class="tags"></ul>
+    </li>
+</script>
+</body>
+</html>
