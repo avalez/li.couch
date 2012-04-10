@@ -8,38 +8,47 @@
     <link rel="shortcut icon" type="image/gif" href="favicon.gif"/>
 
     <title>Li</title>
-    <link href="layout.css" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript" src="jquery-1.6.min.js"></script>
-    <script type="text/javascript" src="jquery.tmpl.min.js"></script>
-    <script type="text/javascript" src="jquery.ba-hashchange.min.js"></script>
-    <script type="text/javascript" src="knockout-1.2.1.js"></script>
-    <script type="text/javascript" src="site.js"></script>
+    <link href="css/style.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="js/jquery-1.6.min.js"></script>
+    <script type="text/javascript" src="js/jquery.ba-hashchange.min.js"></script>
+    <script type="text/javascript" src="js/knockout-2.0.0.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="tinyeditor/tinyeditor.js"></script>
+    <link href="tinyeditor/style.css" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
 <header>
-    <a id="lock" href="#">
-        <span class="locked-hint">unlock this room</span>
-        <span class="unlocked-hint">lock this room</span>
-
-        <div></div>
-    </a>
+  <div>
+    <div id="status" data-bind="html: statusMessage"></div>
+    <!-- ko if: (typeof children()[0] != 'undefined' && children()[0]._id != 'root' && children()[0].parent_id != 'root') -->
+    <a data-bind="attr: {href: '#/' + children()[0].parent_id}" title="Up">&uArr;</a>
+    <!-- /ko -->
+    <!-- ko if: (typeof children()[0] != 'undefined' && children()[0]._id != 'root') -->
+    <a data-bind="attr: {href: '#/'}" title="Home">&#x2302;</a>
+    <!-- /ko -->
+  </div>
 </header>
 
 <div id="page" style="display:block">
-    <input id="title" type="text" data-bind="value: parent.name, editing: parent.editing"/>
-
-    <div id="new-wrapper">
-        <input id="new" type="text" maxlength="256" data-bind="value: newItem, editing: editingNewItem"/>
-        <ul class="tokens"></ul>
-    </div>
-    <ul id="list" data-bind='template: {name: "todo-template", foreach: children}'></ul>
+    <div id="list" data-bind='template: {name: "todo-template", foreach: children}'></div>
+    <ul class="notes">
+      <!-- ko foreach: notes -->
+      <li class="notes"><a data-bind="html: name, attr: {href: '#/' + _id}"></a></li>
+      <!-- /ko -->
+      <!-- ko if: typeof children()[0] != 'undefined' -->
+      <li id="new-wrapper">
+          <input id="new" type="text" maxlength="256" data-bind="value: newItem, css: {loading: newItemLoading}, attr: {readonly: newItemLoading}"/>
+      </li>
+     <!-- /ko -->
+    </ul>
 </div>
+<!-- #1\a\a.T;match=1;prestrip=2;  -->
 
 <div id="not-found" style="display: none">
     <h1>There is nothing at this location.</h1>
 
-    <p><a id="create" data-bind="click: function() {create('root', 'Li', function(error, doc) { $('div#not-found').hide(); window.location.hash = '#/' + doc._id })}">Would you like me to create a LIst here?</a></p>
+    <p><a id="create" data-bind="click: function() {create(root, function(error, doc) { $('div#not-found').hide(); load()})}">Would you like me to create a LIst here?</a></p>
 </div>
 
 <div id="password-protect" class="overlay" style="display:none">
@@ -65,34 +74,33 @@
 
     <div id="about" style="display: none">
         <p>
-            Hi there, my name is Li. I am a real-time, collaborative LIst.
+            Hi there, my name is Li. I am collaborative notes LIst.
         </p>
 
         <p>
-            I'm created from <a href="http://thingler.com">Thingler real-time, collaborative Todo List</a>
-            as a pure <a href="http://couchapp.org">Couch Application</a> by <a href="azhdanov@gmail.com">Andriy
-            Zhdanov</a>.
+            I'm created as a pure <a href="http://couchapp.org">Couch Application</a> by
+            <a href="azhdanov@gmail.com">Andriy Zhdanov</a>.
             I'm powered by <a href="http://couchdb.apache.org">CouchDB</a> and was built entirely in JavaScript,
-            using <a href="http://knockoutjs.com/">Knockout</a>.
+            using <a href="http://knockoutjs.com/">Knockout</a>. I'm running on <a href="">Iris Couch</a> - &quot;easy cloud CouchDB&quot;.
             My <a href="http://github.com/avalez/li.couch">code</a> is
-            available and open-source&mdash;feel free to browse.
+            available and open-source &mdash; feel free to browse and fork!
         </p>
     </div>
     <p>Copyright &copy; 2011 <a href="mailto:azhdanov@gmail.com">Andriy Zhdanov</a></p>
 </footer>
 
 <script type="text/html" id="todo-template">
-    <li data-bind="css: {completed:completed, editing:editing}">
-        <input type="checkbox" data-bind="checked: completed"/>
-        <input type="text" data-bind="value: name, visible: editing(), editing: editing"/>
-        <a data-bind="text: name, visible: !editing(), attr: {href: '#/' + _id} "/>
-        <ul class="tokens"></ul>
-        <div class="actions">
-            <a data-action="edit" data-bind="click: function() { editing(true) }">&#x270E;</a>
-            <a data-action="remove" data-bind="click: remove">&#x2717;</a>
+    <div>
+        <div class="editable" data-bind="htmlValue: name"/>
+        <div class="actions actions1">
+            <a data-bind="click: edit">&#x270E;</a>
+            <a data-bind="click: remove">&#x2717;</a>
         </div>
-        <ul class="tags"></ul>
-    </li>
+        <div class="actions actions2">
+            <a data-bind="css: {loading: loading}" style="visibility: visible">&nbsp;&nbsp;&nbsp;</a>
+            <a data-bind="click: $parent.add">&#x271A;</a>
+        </div>
+    </div>
 </script>
 </body>
 </html>

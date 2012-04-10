@@ -1,6 +1,0 @@
-Real-time, collaborative LIst, see http://li.iriscouch.com for demo.
-
-Created from Thingler [http://thingler.com/] as a pure Couch Application [http://couchapp.org/]. Backed by CouchDB [http://couchdb.apache.org/] and built entirely in JavaScript, using Knockout JS [http://knockoutjs.com/].
-
-To run it yourself, push it into you couchdb, e.g: $couchapp.js push app.js http://your.iriscouch.com/db
-And open it in your browser, e.g.: http://li.iriscou.ch/cats/_design/app/index.html or http://your.iriscouch.com, if you enabled rewrites.
