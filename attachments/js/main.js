@@ -211,7 +211,8 @@ ko.bindingHandlers.htmlValue = {
   init: function(element, valueAccessor, allBindingsAccessor) {
       ko.utils.registerEventHandler(element, "click", function(event) {
         var t = document.elementFromPoint(event.clientX, event.clientY);
-        if (!t || (t.nodeName != 'A' && element.contentEditable != 'true')) {
+        if ((!t || (t.nodeName != 'A' && element.contentEditable != 'true'))
+            && editor.d ) { // tinyedtor: if wysiwyg
           editor.enable(element);
         }
       });
