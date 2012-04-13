@@ -583,6 +583,10 @@ var load = function() {
           viewModel.statusMessage('');
         })
     }
+    // track with google analytics page views
+    if (typeof _gaq != 'undefined' && $.isFunction(_gaq.push)) {
+        _gaq.push(['_trackPageview', '/?parent_id=' + parent_id]);
+    }
 }
 
 $(run)
