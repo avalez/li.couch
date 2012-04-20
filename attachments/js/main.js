@@ -324,14 +324,23 @@ viewModel.save = function (doc, callback) {
 }
 
 viewModel.remove = function(doc_id, doc_rev, callback) {
-    var deferred = app.remove(doc_id, doc_rev, nil);
+    var deferred = app.remove(doc_id, doc_rev, function(jqXHR) {
+      if (jqXHR) { // jqXHR object
+        var error = eval('(' + jqXHR.responseText + ')'); 
+        viewModel.statusMessage('Error: ' + error.reason);
+        // callback now with error, as we won't call later in case of error
+        if (callback) callback(true); 
+      }
+    });
     // cascade, and callback on first level
     app.view('children', {key: doc_id}, function(error, data) {
         var deferreds = [];
         $(data.rows).each(function(i, row) {
-            deferreds.push(viewModel.remove(row.id, row.value)); // recurse
+            deferreds.push(viewModel.remove(row.id, row.value)); // recurse wo callback
         });
-        $.when(deferreds).done(callback);
+        if (callback) {
+          $.when(deferred, deferreds).done(/* do not pass arguments */ function() {callback()});
+        }
     });
     return deferred;
 }
@@ -356,12 +365,14 @@ function observable(doc) {
     doc.loading = ko.observable(false);
     doc.remove = function() {
       doc.loading(true);
-      viewModel.remove(doc._id, doc._rev, function() {
+      viewModel.remove(doc._id, doc._rev, function(error) {
         doc.loading(false);
-        if (doc._id == viewModel.children()[0]._id) {
-          goup(doc);
-        } else {
-          viewModel.children.remove(doc);
+        if (!error) {
+          if (doc._id == viewModel.children()[0]._id) {
+            goup(doc);
+          } else {
+            viewModel.children.remove(doc);
+          }
         }
       });
     }

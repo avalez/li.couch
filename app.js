@@ -43,6 +43,9 @@ ddoc.validate_doc_update = function (newDoc, oldDoc, userCtx) {
   if (newDoc._deleted === true && userCtx.roles.indexOf('_admin') === -1) {
     throw "Only admin can delete documents on this database.";
   } 
+  if (newDoc._deleted === true &&  ['root', '3133f02202895dab5d84c9ab8c000cdd'].indexOf(newDoc._id) !== -1) {
+    throw "It's not allowed to delete this element.";
+  } 
 }
 
 couchapp.loadAttachments(ddoc, path.join(__dirname, 'attachments'));
