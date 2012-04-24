@@ -90,6 +90,10 @@ app.remove = function(doc_id, doc_rev, callback) {
   return request({type: 'DELETE', url: app.baseURL + '../../' + doc_id + '?rev=' + doc_rev}, callback);
 }
 
+app.removeAttachment = function(doc_id, doc_rev, attachment, callback) {
+  app.myChanges.push(doc_id);
+  return request({type: 'DELETE', url: app.baseURL + '../../' + doc_id + '/' + attachment + '?rev=' + doc_rev}, callback);
+}
 app.myChanges = [];
 
 // check if change has any modification from outside,
@@ -266,6 +270,7 @@ var viewModel = {
     newItem: ko.observable(''),
     notes: ko.observableArray(),
     children: ko.observableArray(),
+    attachments: ko.observableArray(),
     newItemLoading: ko.observable(false),
     statusMessage: ko.observable('')
 }
@@ -289,6 +294,7 @@ viewModel.newItem.subscribe(function(newValue) {
 viewModel.reset = function() {
   viewModel.children.splice(0, viewModel.children().length);
   viewModel.notes.splice(0, viewModel.notes().length);
+  viewModel.attachments.splice(0, viewModel.attachments().length);
 }
 
 viewModel.create = function(doc, callback) {
@@ -474,6 +480,25 @@ function observableArray(data) {
   return array;
 }
 
+function observableAttachment(name) {
+  var attachment = {name: name};
+  attachment.remove = function() {
+    app.removeAttachment(viewModel.children()[0]._id, viewModel.children()[0]._rev, name, function(error, data) {
+      viewModel.children()[0]._rev = data.rev;
+      viewModel.attachments.remove(attachment);
+    })
+  };
+  return attachment;
+}
+
+function observableAttachments(doc) {
+  var array = [];
+  for (var name in doc._attachments) {
+    array.push(observableAttachment(name));
+  }
+  return array;
+}
+
 function findById(docs, id) {
   for (var i = 0, length = docs.length; i < length; i++) {
     if (docs[i]._id == id) {
@@ -532,6 +557,55 @@ function handleChanges() {
 
 }
 
+//http://www.html5rocks.com/en/tutorials/file/dndfiles/
+var uploadFile = function (file, index, callback) {
+  var xhr = new XMLHttpRequest(),
+    upload = xhr.upload,
+    start_time = new Date().getTime(),
+    url = app.baseURL + '../../' +  viewModel.children()[0]._id + '/' + file.name + '?rev=' + viewModel.children()[0]._rev;
+
+  upload.index = index;
+  upload.file = file;
+  upload.downloadStartTime = start_time;
+  upload.currentStart = start_time;
+  upload.currentProgress = 0;
+  upload.startData = 0;
+  upload.addEventListener("progress", callback, false);
+
+  xhr.open("PUT", url, true);
+  xhr.setRequestHeader('content-length', file.size || 0);
+  xhr.setRequestHeader('content-type', file.type || 'octet/stream');
+
+  var reader = new FileReader();
+
+  // Closure to capture the file information.
+  reader.onload = function(e) {
+    // If we use onloadend, we need to check the readyState.
+    //if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+      xhr.sendAsBinary(e.target.result);
+    //}
+  };
+
+  // Read in the image file as a data URL.
+  reader.readAsBinaryString(file);
+
+  return xhr;
+}
+
+function handleFileSelect(evt) {
+  if (viewModel.children().length == 0) return;
+
+  var files = evt.target.files; // FileList object
+
+  // files is a FileList of File objects. List some properties.
+  var output = [];
+  for (var i = 0, f; f = files[i]; i++) {
+    uploadFile(f, i, nil);
+    viewModel.attachments.push(observableAttachment(f.name));
+  }
+  evt.target.value = '';
+}
+
 // http://stackoverflow.com/questions/822452/strip-html-from-text-javascript
 function stripHtml(html)
 {
@@ -541,6 +615,7 @@ function stripHtml(html)
 }
 
 var run = function() {
+    document.getElementById('files').addEventListener('change', handleFileSelect, false);
     ko.applyBindings(viewModel);
     editor = new TINY.editor.edit('editor',{
       el:$('header > div')[0],
@@ -573,6 +648,7 @@ var load = function() {
                 $('div#not-found').hide();
                 viewModel.children.pushAll(observableArray(data, observable));
                 setTitle(viewModel.children()[0]);
+                viewModel.attachments.pushAll(observableAttachments(data.rows[0].doc));
             } else {
                 viewModel.root.set({_id: parent_id, name: 'Untitled', type: 'note', order: 0});
                 if (parent_id != 'root') {

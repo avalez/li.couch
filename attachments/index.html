@@ -53,8 +53,13 @@
       </li>
      <!-- /ko -->
     </ul>
+    <ul class="attachments">
+      <input type="file" id="files" name="files[]" />
+      <!-- ko foreach: attachments -->
+      <li class="attachment" data-bind="text: name"></li><a data-bind="click: remove">&#x2717;</a>
+      <!-- /ko -->
+    </ul>
 </div>
-<!-- #1\a\a.T;match=1;prestrip=2;  -->
 
 <div id="not-found" style="display: none">
     <h1>There is nothing at this location.</h1>

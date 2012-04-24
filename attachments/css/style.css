@@ -68,7 +68,7 @@ h1 {
     color: #3D4A5C;
     font-size: 42px;
 }
-ul.notes {
+ul.notes, ul.attachments {
     border-top: 1px solid #DDDDDD;
     list-style-type: none;
     padding: 10px;
@@ -80,6 +80,9 @@ li.notes {
     border-right: 1px solid #DDDDDD;
     margin: 5px 5px 0 0;
     padding: 0 10px 0 0;
+}
+li.attachment {
+    display: inline-block
 }
 a {
     color: #CCCCCC;
