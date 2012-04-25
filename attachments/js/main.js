@@ -320,10 +320,7 @@ viewModel.save = function (doc, callback) {
       if (!error) {
         doc._rev = data.rev;
       } else { // TODO if (data.error == 'conflict') {
-        viewModel.statusMessage('Error: ' + data.error);
-        setTimeout(function() {
-          viewModel.statusMessage('');
-        }, 5000); // 5 sec        
+        viewModel.setStatusMessage('Error: ' + data.error)
       }
       callback(error, data);
     })
@@ -333,7 +330,7 @@ viewModel.remove = function(doc_id, doc_rev, callback) {
     var deferred = app.remove(doc_id, doc_rev, function(jqXHR) {
       if (jqXHR) { // jqXHR object
         var error = eval('(' + jqXHR.responseText + ')'); 
-        viewModel.statusMessage('Error: ' + error.reason);
+        viewModel.setStatusMessage('Error: ' + error.reason)
         // callback now with error, as we won't call later in case of error
         if (callback) callback(true); 
       }
@@ -355,6 +352,13 @@ viewModel.remove = function(doc_id, doc_rev, callback) {
 viewModel.add = function($data) {
   viewModel.children.splice($data.index() + 1, 0,
     observableNewItem(getOrder(viewModel.children, $data.index())));
+}
+
+viewModel.setStatusMessage = function($message) {
+  viewModel.statusMessage($message);
+  setTimeout(function() {
+    viewModel.statusMessage('');
+  }, 5000); // 5 sec          
 }
 
 function observable(doc) {
@@ -600,8 +604,12 @@ function handleFileSelect(evt) {
   // files is a FileList of File objects. List some properties.
   var output = [];
   for (var i = 0, f; f = files[i]; i++) {
-    uploadFile(f, i, nil);
-    viewModel.attachments.push(observableAttachment(f.name));
+    if (f.size <= 1024*1024) {
+      uploadFile(f, i, nil);
+      viewModel.attachments.push(observableAttachment(f.name));
+    } else {
+      viewModel.setStatusMessage('Error: ' + f.name + ' has size bigger than 1 MB: ' + f.size)
+    }
   }
   evt.target.value = '';
 }

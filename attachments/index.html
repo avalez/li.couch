@@ -43,22 +43,21 @@
 
 <div id="page" style="display:block">
     <div id="list" data-bind='template: {name: "todo-template", foreach: children}'></div>
-    <ul class="notes">
-      <!-- ko foreach: notes -->
-      <li class="notes"><a data-bind="html: name, attr: {href: '#/' + _id}"></a></li>
-      <!-- /ko -->
-      <!-- ko if: typeof children()[0] != 'undefined' -->
-      <li id="new-wrapper">
-          <input id="new" type="text" maxlength="256" data-bind="value: newItem, css: {loading: newItemLoading}, attr: {readonly: newItemLoading}"/>
-      </li>
-     <!-- /ko -->
-    </ul>
-    <ul class="attachments">
+    <ul class="attachments" data-bind="if: typeof children()[0] != 'undefined'">
       <input type="file" id="files" name="files[]" />
       <!-- ko foreach: attachments -->
       <li class="attachment"><a data-bind="text: name, attr: {href: app.baseUrl + '../../api/' + $parent.children()[0]._id + '/' + name}"/></li><a data-bind="click: remove">&#x2717;</a>
       <!-- /ko -->
     </ul>
+    <ul class="notes" data-bind="if: typeof children()[0] != 'undefined'">
+      <!-- ko foreach: notes -->
+      <li class="notes"><a data-bind="html: name, attr: {href: '#/' + _id}"></a></li>
+      <!-- /ko -->
+      <li id="new-wrapper">
+          <input id="new" type="text" maxlength="256" data-bind="value: newItem, css: {loading: newItemLoading}, attr: {readonly: newItemLoading}"/>
+      </li>
+    </ul>
+
 </div>
 
 <div id="not-found" style="display: none">

@@ -82,7 +82,8 @@ li.notes {
     padding: 0 10px 0 0;
 }
 li.attachment {
-    display: inline-block
+    display: inline-block;
+    padding-right: 10px;
 }
 a {
     color: #CCCCCC;
