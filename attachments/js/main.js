@@ -335,16 +335,19 @@ viewModel.remove = function(doc_id, doc_rev, callback) {
         if (callback) callback(true); 
       }
     });
-    // cascade, and callback on first level
-    app.view('children', {key: doc_id}, function(error, data) {
+    if (typeof callback == 'function'
+     || (typeof callback == 'string' /* doc_type */ && callback == 'note')) {
+      // cascade, and callback on first level
+      app.view('children', {key: doc_id}, function(error, data) {
         var deferreds = [];
         $(data.rows).each(function(i, row) {
-            deferreds.push(viewModel.remove(row.id, row.value)); // recurse wo callback
+            deferreds.push(viewModel.remove(row.id, row.value.rev, row.value.type)); // recurse wo callback
         });
-        if (callback) {
+        if (typeof callback == 'function') {
           $.when(deferred, deferreds).done(/* do not pass arguments */ function() {callback()});
         }
-    });
+      });
+    }
     return deferred;
 }
 
