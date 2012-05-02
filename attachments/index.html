@@ -44,18 +44,22 @@
 
 <div id="page" style="display:block">
     <div id="list" data-bind='template: {name: "todo-template", foreach: children}'></div>
-    <ul class="notes">
+    <ul class="attachments" data-bind="if: typeof children()[0] != 'undefined'">
+      <input type="file" id="files" name="files[]" data-bind="event: {change: handleFileSelect}"/>
+      <!-- ko foreach: attachments -->
+      <li class="attachment"><a data-bind="text: name, attr: {href: app.baseUrl + '../../api/' + $parent.children()[0]._id + '/' + name}"/></li><a data-bind="click: remove">&#x2717;</a>
+      <!-- /ko -->
+    </ul>
+    <ul class="notes" data-bind="if: typeof children()[0] != 'undefined'">
       <!-- ko foreach: notes -->
       <li class="notes"><a data-bind="html: name, attr: {href: '#/' + _id}"></a></li>
       <!-- /ko -->
-      <!-- ko if: typeof children()[0] != 'undefined' -->
       <li id="new-wrapper">
           <input id="new" type="text" maxlength="256" data-bind="value: newItem, css: {loading: newItemLoading}, attr: {readonly: newItemLoading}"/>
       </li>
-     <!-- /ko -->
     </ul>
+
 </div>
-<!-- #1\a\a.T;match=1;prestrip=2;  -->
 
 <div id="not-found" style="display: none">
     <h1>There is nothing at this location.</h1>
@@ -91,7 +95,7 @@
 
         <p>
             I'm created as a pure <a href="http://couchapp.org">Couch Application</a> by
-            <a href="azhdanov@gmail.com">Andriy Zhdanov</a>.
+            <a href="mailto:azhdanov@gmail.com">Andriy Zhdanov</a>.
             I'm powered by <a href="http://couchdb.apache.org">CouchDB</a> and was built entirely in JavaScript,
             using <a href="http://knockoutjs.com/">Knockout</a>. I'm running on <a href="">Iris Couch</a> - &quot;easy cloud CouchDB&quot;.
             My <a href="http://github.com/avalez/li.couch">code</a> is

@@ -90,6 +90,10 @@ app.remove = function(doc_id, doc_rev, callback) {
   return request({type: 'DELETE', url: app.baseURL + '../../' + doc_id + '?rev=' + doc_rev}, callback);
 }
 
+app.removeAttachment = function(doc_id, doc_rev, attachment, callback) {
+  app.myChanges.push(doc_id);
+  return request({type: 'DELETE', url: app.baseURL + '../../' + doc_id + '/' + attachment + '?rev=' + doc_rev}, callback);
+}
 app.myChanges = [];
 
 // check if change has any modification from outside,
@@ -266,6 +270,7 @@ var viewModel = {
     newItem: ko.observable(''),
     notes: ko.observableArray(),
     children: ko.observableArray(),
+    attachments: ko.observableArray(),
     newItemLoading: ko.observable(false),
     statusMessage: ko.observable('')
 }
@@ -289,6 +294,7 @@ viewModel.newItem.subscribe(function(newValue) {
 viewModel.reset = function() {
   viewModel.children.splice(0, viewModel.children().length);
   viewModel.notes.splice(0, viewModel.notes().length);
+  viewModel.attachments.splice(0, viewModel.attachments().length);
 }
 
 viewModel.create = function(doc, callback) {
@@ -314,25 +320,34 @@ viewModel.save = function (doc, callback) {
       if (!error) {
         doc._rev = data.rev;
       } else { // TODO if (data.error == 'conflict') {
-        viewModel.statusMessage('Error: ' + data.error);
-        setTimeout(function() {
-          viewModel.statusMessage('');
-        }, 5000); // 5 sec        
+        viewModel.setStatusMessage('Error: ' + data.error)
       }
       callback(error, data);
     })
 }
 
 viewModel.remove = function(doc_id, doc_rev, callback) {
-    var deferred = app.remove(doc_id, doc_rev, nil);
-    // cascade, and callback on first level
-    app.view('children', {key: doc_id}, function(error, data) {
+    var deferred = app.remove(doc_id, doc_rev, function(jqXHR) {
+      if (jqXHR) { // jqXHR object
+        var error = eval('(' + jqXHR.responseText + ')'); 
+        viewModel.setStatusMessage('Error: ' + error.reason)
+        // callback now with error, as we won't call later in case of error
+        if (callback) callback(true); 
+      }
+    });
+    if (typeof callback == 'function'
+     || (typeof callback == 'string' /* doc_type */ && callback == 'note')) {
+      // cascade, and callback on first level
+      app.view('children', {key: doc_id}, function(error, data) {
         var deferreds = [];
         $(data.rows).each(function(i, row) {
-            deferreds.push(viewModel.remove(row.id, row.value)); // recurse
+            deferreds.push(viewModel.remove(row.id, row.value.rev, row.value.type)); // recurse wo callback
         });
-        $.when(deferreds).done(callback);
-    });
+        if (typeof callback == 'function') {
+          $.when(deferred, deferreds).done(/* do not pass arguments */ function() {callback()});
+        }
+      });
+    }
     return deferred;
 }
 
@@ -340,6 +355,13 @@ viewModel.remove = function(doc_id, doc_rev, callback) {
 viewModel.add = function($data) {
   viewModel.children.splice($data.index() + 1, 0,
     observableNewItem(getOrder(viewModel.children, $data.index())));
+}
+
+viewModel.setStatusMessage = function($message) {
+  viewModel.statusMessage($message);
+  setTimeout(function() {
+    viewModel.statusMessage('');
+  }, 5000); // 5 sec          
 }
 
 function observable(doc) {
@@ -356,12 +378,14 @@ function observable(doc) {
     doc.loading = ko.observable(false);
     doc.remove = function() {
       doc.loading(true);
-      viewModel.remove(doc._id, doc._rev, function() {
+      viewModel.remove(doc._id, doc._rev, function(error) {
         doc.loading(false);
-        if (doc._id == viewModel.children()[0]._id) {
-          goup(doc);
-        } else {
-          viewModel.children.remove(doc);
+        if (!error) {
+          if (doc._id == viewModel.children()[0]._id) {
+            goup(doc);
+          } else {
+            viewModel.children.remove(doc);
+          }
         }
       });
     }
@@ -463,6 +487,25 @@ function observableArray(data) {
   return array;
 }
 
+function observableAttachment(name) {
+  var attachment = {name: name};
+  attachment.remove = function() {
+    app.removeAttachment(viewModel.children()[0]._id, viewModel.children()[0]._rev, name, function(error, data) {
+      viewModel.children()[0]._rev = data.rev;
+      viewModel.attachments.remove(attachment);
+    })
+  };
+  return attachment;
+}
+
+function observableAttachments(doc) {
+  var array = [];
+  for (var name in doc._attachments) {
+    array.push(observableAttachment(name));
+  }
+  return array;
+}
+
 function findById(docs, id) {
   for (var i = 0, length = docs.length; i < length; i++) {
     if (docs[i]._id == id) {
@@ -521,6 +564,59 @@ function handleChanges() {
 
 }
 
+//http://www.html5rocks.com/en/tutorials/file/dndfiles/
+var uploadFile = function (file, index, callback) {
+  var xhr = new XMLHttpRequest(),
+    upload = xhr.upload,
+    start_time = new Date().getTime(),
+    url = app.baseURL + '../../' +  viewModel.children()[0]._id + '/' + file.name + '?rev=' + viewModel.children()[0]._rev;
+
+  upload.index = index;
+  upload.file = file;
+  upload.downloadStartTime = start_time;
+  upload.currentStart = start_time;
+  upload.currentProgress = 0;
+  upload.startData = 0;
+  upload.addEventListener("progress", callback, false);
+
+  xhr.open("PUT", url, true);
+  xhr.setRequestHeader('content-length', file.size || 0);
+  xhr.setRequestHeader('content-type', file.type || 'octet/stream');
+
+  var reader = new FileReader();
+
+  // Closure to capture the file information.
+  reader.onload = function(e) {
+    // If we use onloadend, we need to check the readyState.
+    //if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+      xhr.sendAsBinary(e.target.result);
+    //}
+  };
+
+  // Read in the image file as a data URL.
+  reader.readAsBinaryString(file);
+
+  return xhr;
+}
+
+function handleFileSelect(ko, evt) {
+  if (viewModel.children().length == 0) return;
+
+  var files = evt.target.files; // FileList object
+
+  // files is a FileList of File objects. List some properties.
+  var output = [];
+  for (var i = 0, f; f = files[i]; i++) {
+    if (f.size <= 1024*1024) {
+      uploadFile(f, i, nil);
+      viewModel.attachments.push(observableAttachment(f.name));
+    } else {
+      viewModel.setStatusMessage('Error: ' + f.name + ' has size bigger than 1 MB: ' + f.size)
+    }
+  }
+  evt.target.value = '';
+}
+
 // http://stackoverflow.com/questions/822452/strip-html-from-text-javascript
 function stripHtml(html)
 {
@@ -562,6 +658,7 @@ var load = function() {
                 $('div#not-found').hide();
                 viewModel.children.pushAll(observableArray(data, observable));
                 setTitle(viewModel.children()[0]);
+                viewModel.attachments.pushAll(observableAttachments(data.rows[0].doc));
             } else {
                 viewModel.root.set({_id: parent_id, name: 'Untitled', type: 'note', order: 0});
                 if (parent_id != 'root') {
