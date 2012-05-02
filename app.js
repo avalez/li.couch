@@ -65,6 +65,7 @@ ddoc.views = {
       }
     },
     // reduce to one document (sum sections of a document)
+    /*
     reduce : function(keys, values, rereduce) {
       var res = {};
       for (var i in values) {
@@ -76,7 +77,7 @@ ddoc.views = {
         res[values[i].note_id] = entry;
       }
       return res;
-    }
+    }*/
   }
 };
 
