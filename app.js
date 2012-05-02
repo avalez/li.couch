@@ -17,7 +17,7 @@ ddoc =
 
 ddoc.views = {
   note : {
-    map : function(doc){
+    map : function(doc) {
       if (doc.type == 'note') {
         emit([doc._id, 0])
       } else /* section */ {
@@ -34,7 +34,48 @@ ddoc.views = {
   },
   children : {
     map : function(doc) {
-        emit(doc.parent_id, doc._rev)
+        emit(doc.parent_id, {rev: doc._rev, type: doc.type})
+    }
+  },
+  search : {
+    map : function(doc) {
+      // http://sitr.us/2009/06/30/database-queries-the-couchdb-way.html
+      Array.prototype.reduce = function(val, func) {
+          var i;
+          for (i = 0; i < this.length; i += 1) {
+              val = func(val, this[i]);
+          }
+          return val;
+      };
+      // count unique words per doc (relevance)
+      var tokens = doc.name.split(/[^A-Z0-9\-_]+/i).reduce({}, function(val, el) {
+        var count = val[el] || 0;
+        count++
+        val[el] = count;
+        return val;
+      });
+      for (var i in tokens) {
+        var id;
+        if (doc.type == 'note') {
+          id = doc._id
+        } else {
+          id = doc.parent_id
+        }
+        emit([i], {note_id: id, text: doc.name, count: tokens[i]})
+      }
+    },
+    // reduce to one document (sum sections of a document)
+    reduce : function(keys, values, rereduce) {
+      var res = {};
+      for (var i in values) {
+        var entry = res[values[i].note_id] || {};
+        entry.count = values[i].count + (entry.count || 0);
+        var texts = entry.texts || [];
+        texts.push({text: values[i].text, id: keys[i][1]});
+        entry.texts = texts;
+        res[values[i].note_id] = entry;
+      }
+      return res;
     }
   }
 };
@@ -44,10 +85,11 @@ ddoc.validate_doc_update = function (newDoc, oldDoc, userCtx) {
     throw "Only admin can delete documents on this database.";
   } 
   if (newDoc._deleted === true &&  ['root', '3133f02202895dab5d84c9ab8c000cdd'].indexOf(newDoc._id) !== -1) {
-    throw "It's not allowed to delete this element.";
+    //throw "It's not allowed to delete this element.";
   } 
 }
 
 couchapp.loadAttachments(ddoc, path.join(__dirname, 'attachments'));
 
 module.exports = ddoc;
+
