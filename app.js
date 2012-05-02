@@ -10,6 +10,8 @@ ddoc =
     , {from:"/api", to:'../../'}
     , {from:"/api/*", to:'../../*'}
 //    , {from:"_uuids", to:'../../../_uuids'}
+    , {from:"/couch/*", to:'../../../*'}
+    , {from:"/couch", to:'../../../'}
     , {from:"/*", to:'*'}
     ]
   }
