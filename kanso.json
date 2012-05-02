@@ -1,0 +1,24 @@
+{
+    "name": "li",
+    "version": "0.0.1",
+    "description": "Collaborative notes LIst",
+    "long_description": "LI is a non linear notes application, inspired by Tiddly Wiki and instigated to appear initially by Google decommissioning its Notebook.",
+    "url": "https://github.com/avalez/li.couch",
+    "categories": ["productivity"],
+    "app": "app",
+    "dependencies": {
+        "node-couchapp": null
+    },
+    "icons": {
+        "16": "images/icons/icon_16.png",
+        "48": "images/icons/icon_48.png",
+        "96": "images/icons/icon_96.png",
+        "128": "images/icons/icon_128.png"
+    },
+    "promo_images": {
+        "small": "images/promo/promo_small.png"
+    },
+    "screenshots": [
+        "images/promo/screenshot1.png"
+    ]
+}
