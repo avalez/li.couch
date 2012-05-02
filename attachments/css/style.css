@@ -98,6 +98,7 @@ input[type="checkbox"] {
 }
 #page {
     width: 100%;
+    margin-top: 70px;
 }
 #page label, #page label a, #page label a:visited {
     color: #3D4A5C;
