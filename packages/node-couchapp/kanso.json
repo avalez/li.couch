@@ -1,0 +1,10 @@
+{
+    "name": "node-couchapp",
+    "url" : "https://github.com/kanso/node-couchapp",
+    "version": "0.9.1",
+    "categories": ["build-tools"],
+    "description": "adds a build step using node.couchapp.js",
+    "preprocessors": {
+        "eval": "build/eval"
+    }
+}

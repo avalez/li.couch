@@ -1,0 +1,22 @@
+language: node_js
+node_js:
+   - 0.6
+
+
+env: DB=couchdb
+
+before_script:
+  - curl -X PUT localhost:5984/myapp_test
+  - npm install kanso -g
+  - npm install nodeunit -g
+
+
+script: "kanso;"
+
+after_script:
+  # setup and run tests
+  - test/run_headless_tests.sh http://localhost:5984/myapp_test"
+
+notifications:
+  email:
+    - ryan.ramage@gmail.com
