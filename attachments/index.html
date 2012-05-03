@@ -44,7 +44,7 @@
 <div id="page" style="display:block">
     <div id="list" data-bind='template: {name: "todo-template", foreach: children}'></div>
     <ul class="attachments" data-bind="if: typeof children()[0] != 'undefined'">
-      <input type="file" id="files" name="files[]" />
+      <input type="file" id="files" name="files[]" data-bind="event: {change: handleFileSelect}"/>
       <!-- ko foreach: attachments -->
       <li class="attachment"><a data-bind="text: name, attr: {href: app.baseUrl + '../../api/' + $parent.children()[0]._id + '/' + name}"/></li><a data-bind="click: remove">&#x2717;</a>
       <!-- /ko -->

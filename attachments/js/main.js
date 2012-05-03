@@ -599,7 +599,7 @@ var uploadFile = function (file, index, callback) {
   return xhr;
 }
 
-function handleFileSelect(evt) {
+function handleFileSelect(ko, evt) {
   if (viewModel.children().length == 0) return;
 
   var files = evt.target.files; // FileList object
@@ -626,7 +626,6 @@ function stripHtml(html)
 }
 
 var run = function() {
-    document.getElementById('files').addEventListener('change', handleFileSelect, false);
     ko.applyBindings(viewModel);
     editor = new TINY.editor.edit('editor',{
       el:$('header > div')[0],
