@@ -56,14 +56,15 @@ ddoc.views = {
       });
       for (var i in tokens) {
         var id;
-        if (doc.type == 'note') {
-          id = doc._id
+        if (doc.type == 'section') {
+          emit([i, doc.parent_id, 0, 0], {_id: doc.parent_id})
+          id = doc.parent_id;
         } else {
-          id = doc.parent_id
+          id = doc._id;
         }
+        emit([i, id, doc.order, tokens[i]], {_id: doc._id})
         //var obj = {};
         //obj[id] = {texts: [doc.name], count: tokens[i]};
-        emit([i, id, doc.order, tokens[i]], doc.name)
       }
     },
     // reduce to one document (sum sections of a document)

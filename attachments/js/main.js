@@ -272,7 +272,10 @@ var viewModel = {
     children: ko.observableArray(),
     attachments: ko.observableArray(),
     newItemLoading: ko.observable(false),
-    statusMessage: ko.observable('')
+    statusMessage: ko.observable(''),
+    search: ko.observable(''),
+    searching: ko.observable(false),
+    searchItems: ko.observableArray()
 }
 
 viewModel.newItem.subscribe(function(newValue) {
@@ -289,6 +292,30 @@ viewModel.newItem.subscribe(function(newValue) {
         }
         viewModel.newItem(''); // clear
     })
+});
+
+viewModel.search.subscribe(function(term) {
+    if ($.trim(term) == '') {
+        return;
+    }
+    var $def = app.view('search', {startkey: [term], endkey: [term, 'ZZZ'], include_docs: true},
+      function(error, data) {
+        viewModel.searchItems.splice(0, viewModel.searchItems().length);
+        if (!error && data.rows.length > 0) {
+          var notes = [], note = {};
+          for (var i = 0; i < data.rows.length; i++) {
+            var key = data.rows[i].key;
+            if (note._id !== key[1]) { // note goes first
+              note = {_id: key[1], children: [data.rows[i].doc]};
+              notes.push(note)
+            } else if (data.rows[i].doc._id != note._id) { // skip note if it also matches
+              note.children.push(data.rows[i].doc)
+            }
+          }
+          viewModel.searchItems.pushAll(notes);
+        } else {
+        }
+    });
 });
 
 viewModel.reset = function() {
@@ -653,7 +680,7 @@ var load = function() {
     if (viewModel.children().length == 0 || viewModel.children()[0]._id != parent_id) {
         viewModel.reset();
         var $def1 = app.view('note', {startkey: [parent_id], endkey: [parent_id, 9007199254740992], include_docs: true},
-         function(error, data) {
+        function(error, data) {
             if (!error && data.rows.length > 0 && data.rows[0].doc.type == 'note') {
                 $('div#not-found').hide();
                 viewModel.children.pushAll(observableArray(data, observable));

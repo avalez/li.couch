@@ -32,6 +32,7 @@
 <header>
   <div>
     <div id="status" data-bind="html: statusMessage"></div>
+    <div id="status"><input id="new" type="text" maxlength="256" data-bind="value: search, css: {loading: searching}, attr: {readonly: searching}"/></div>
     <!-- ko if: (typeof children()[0] != 'undefined' && children()[0]._id != 'root' && children()[0].parent_id != 'root') -->
     <a data-bind="attr: {href: '#/' + children()[0].parent_id}" title="Up">&uArr;</a>
     <!-- /ko -->
@@ -64,6 +65,14 @@
     <h1>There is nothing at this location.</h1>
 
     <p><a id="create" data-bind="click: function() {create(root, function(error, doc) { $('div#not-found').hide(); load()})}">Would you like me to create a LIst here?</a></p>
+</div>
+
+<div id="search" data-bind="if: searchItems().length > 0">
+    <!-- ko foreach: searchItems -->
+    <!-- ko foreach: children -->
+    <div data-bind="html: name"></div>
+    <!-- /ko -->
+    <!-- /ko -->
 </div>
 
 <div id="password-protect" class="overlay" style="display:none">
