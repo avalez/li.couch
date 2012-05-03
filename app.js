@@ -61,22 +61,29 @@ ddoc.views = {
         } else {
           id = doc.parent_id
         }
-        emit([i], {note_id: id, text: doc.name, count: tokens[i]})
+        //var obj = {};
+        //obj[id] = {texts: [doc.name], count: tokens[i]};
+        emit([i, id, doc.order, tokens[i]], doc.name)
       }
     },
     // reduce to one document (sum sections of a document)
+    /*
     reduce : function(keys, values, rereduce) {
       var res = {};
       for (var i in values) {
-        var entry = res[values[i].note_id] || {};
-        entry.count = values[i].count + (entry.count || 0);
-        var texts = entry.texts || [];
-        texts.push({text: values[i].text, id: keys[i][1]});
-        entry.texts = texts;
-        res[values[i].note_id] = entry;
+        var source = values[i];
+        for (var key in source) {
+          var entry = res[key] || {}
+          entry.count = source[key].count + (entry.count || 0); // sum counts
+          var texts = entry.texts || [];
+          texts.splice(texts.legnth, 0, source[key].texts); // push all texts
+          entry.texts = texts;
+          res[key] = entry;
+        }
       }
       return res;
     }
+    */
   }
 };
 
@@ -84,8 +91,8 @@ ddoc.validate_doc_update = function (newDoc, oldDoc, userCtx) {
   if (newDoc._deleted === true && userCtx.roles.indexOf('_admin') === -1) {
     throw "Only admin can delete documents on this database.";
   } 
-  if (newDoc._deleted === true &&  ['root', '3133f02202895dab5d84c9ab8c000cdd'].indexOf(newDoc._id) !== -1) {
-    //throw "It's not allowed to delete this element.";
+  if (newDoc._deleted === true &&  ['root', '3792703880258a53d599789308001457'].indexOf(newDoc._id) !== -1) {
+    throw "It's not allowed to delete this element.";
   } 
 }
 
