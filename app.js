@@ -57,34 +57,15 @@ ddoc.views = {
       for (var i in tokens) {
         var id;
         if (doc.type == 'section') {
+          // emit note
           emit([i, doc.parent_id, 0, 0], {_id: doc.parent_id})
           id = doc.parent_id;
         } else {
           id = doc._id;
         }
         emit([i, id, doc.order, tokens[i]], {_id: doc._id})
-        //var obj = {};
-        //obj[id] = {texts: [doc.name], count: tokens[i]};
       }
     },
-    // reduce to one document (sum sections of a document)
-    /*
-    reduce : function(keys, values, rereduce) {
-      var res = {};
-      for (var i in values) {
-        var source = values[i];
-        for (var key in source) {
-          var entry = res[key] || {}
-          entry.count = source[key].count + (entry.count || 0); // sum counts
-          var texts = entry.texts || [];
-          texts.splice(texts.legnth, 0, source[key].texts); // push all texts
-          entry.texts = texts;
-          res[key] = entry;
-        }
-      }
-      return res;
-    }
-    */
   }
 };
 

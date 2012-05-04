@@ -30,7 +30,6 @@
 
 <body>
 <header>
-  <div id="search"><input type="text" maxlength="256" data-bind="value: search, css: {loading: searching}, attr: {readonly: searching}"/></div>
   <div id="header">
     <div id="status" data-bind="html: statusMessage"></div>
     <!-- ko if: (typeof children()[0] != 'undefined' && children()[0]._id != 'root' && children()[0].parent_id != 'root') -->
@@ -43,15 +42,22 @@
 </header>
 
 <div id="page" style="display:block">
-  <div id="sidebar">
+  <div class="sidebar">
     <ul class="notes" data-bind="if: typeof children()[0] != 'undefined'">
+      <li class="notes">Child notes:</li>
       <!-- ko foreach: notes -->
       <li class="notes"><a data-bind="html: name, attr: {href: '#/' + _id}"></a></li>
       <!-- /ko -->
+      <li class="notes">Add:</li>
       <li id="new-wrapper">
           <input id="new" type="text" maxlength="256" data-bind="value: newItem, css: {loading: newItemLoading}, attr: {readonly: newItemLoading}"/>
       </li>
-    </ul>
+      <li class="notes">Search:</li>
+      <li id="search"><input type="text" maxlength="256" data-bind="value: search, css: {loading: searching}, attr: {readonly: searching}"/></li>
+      <!-- ko foreach: searchItems -->
+      <li class="notes" data-bind="if: typeof children != 'undefined'"><a data-bind="html: children[0].name, attr: {href: '#/' + children[0]._id}"></a></li>
+      <!-- /ko -->
+    </ul>  
   </div>
   <div id="main">
     <div id="list" data-bind='template: {name: "todo-template", foreach: children}'></div>
@@ -68,15 +74,6 @@
     <h1>There is nothing at this location.</h1>
 
     <p><a id="create" data-bind="click: function() {create(root, function(error, doc) { $('div#not-found').hide(); load()})}">Would you like me to create a LIst here?</a></p>
-</div>
-
-<div id="search" data-bind="if: searchItems().length > 0">
-    <!-- ko foreach: searchItems -->
-    <!-- ko foreach: children -->
-    <div data-bind="html: name"></div>
-    <!-- /ko -->
-    <hr/>
-    <!-- /ko -->
 </div>
 
 <div id="password-protect" class="overlay" style="display:none">

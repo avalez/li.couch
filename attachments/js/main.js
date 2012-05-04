@@ -273,7 +273,7 @@ var viewModel = {
     attachments: ko.observableArray(),
     newItemLoading: ko.observable(false),
     statusMessage: ko.observable(''),
-    search: ko.observable('Search...'),
+    search: ko.observable(''),
     searching: ko.observable(false),
     searchItems: ko.observableArray()
 }
@@ -675,9 +675,9 @@ function setTitle(doc) {
 }
 
 var load = function() {
-    viewModel.statusMessage('Loading...');
     var parent_id = window.location.hash.substring(2) || 'root'; // strip '#/'
     if (viewModel.children().length == 0 || viewModel.children()[0]._id != parent_id) {
+        viewModel.statusMessage('Loading...');
         viewModel.reset();
         var $def1 = app.view('note', {startkey: [parent_id], endkey: [parent_id, 9007199254740992], include_docs: true},
         function(error, data) {

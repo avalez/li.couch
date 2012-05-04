@@ -16,8 +16,6 @@ header {
     width: 100%;
 }
 #search {
-    float: left;
-    margin: 39px 0 0 6px;
     width: 250px;
 }
 #header {
@@ -94,9 +92,10 @@ li.attachment {
   display: inline-block;
   width: 960px;
 }
-#sidebar {
+.sidebar {
   vertical-align: top;
   display: inline-block;
+  width: 264px;
 }
 a {
     color: #CCCCCC;
