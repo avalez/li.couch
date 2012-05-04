@@ -109,7 +109,7 @@ input[type="checkbox"] {
     font-size: 22px;
 }
 #page {
-    width: 100%;
+    width: 1230px;
 }
 #page label, #page label a, #page label a:visited {
     color: #3D4A5C;

@@ -41,9 +41,7 @@ var param = function(a) {
 
 function nil() {}
 
-var m = document.location.pathname.match(/.+\//);
-var baseUrl = m ? '' : 'api/dummy/dummy/';
-var app = {baseURL: baseUrl};
+var app = {};
 
 var cache = [];
 
@@ -53,7 +51,7 @@ app.uuid = function(uuid) {
     } else if (cache.length > 0) {
         return cache.pop()
     } else {
-        return request({url: './couch/_uuids?count=2'}, nil).pipe(function(data) {
+        return request({url: '/_uuids?count=2'}, nil).pipe(function(data) {
             Array.prototype.push.apply(cache, data.uuids);
             return cache.pop()
         })
@@ -61,7 +59,7 @@ app.uuid = function(uuid) {
 }
 
 app.view = function (view_id, params, callback) {
-  return request({url: './api/_design/li/_view/' + view_id + '?' + param(params)}, callback);
+  return request({url: '_view/' + view_id + '?' + param(params)}, callback);
 }
 
 app.create = function(doc, callback) {
@@ -74,12 +72,12 @@ app.create = function(doc, callback) {
 }
 
 app.read = function(doc_id, callback) {
-  return request({type: 'GET', url: './api/' + doc_id}, callback);
+  return request({type: 'GET', url: 'api/' + doc_id}, callback);
 }
 
 app.update = function(doc, callback) {
   app.myChanges.push(doc._id);
-  return request({type: 'PUT', url: './api/' + doc._id, data: doc}, function(error, data) {
+  return request({type: 'PUT', url: 'api/' + doc._id, data: doc}, function(error, data) {
     doc._rev = data.rev;
     callback(error, data);
   })
@@ -87,12 +85,12 @@ app.update = function(doc, callback) {
 
 app.remove = function(doc_id, doc_rev, callback) {
   app.myChanges.push(doc_id);
-  return request({type: 'DELETE', url: './api/' + doc_id + '?rev=' + doc_rev}, callback);
+  return request({type: 'DELETE', url: 'api/' + doc_id + '?rev=' + doc_rev}, callback);
 }
 
 app.removeAttachment = function(doc_id, doc_rev, attachment, callback) {
   app.myChanges.push(doc_id);
-  return request({type: 'DELETE', url: './api/' + doc_id + '/' + attachment + '?rev=' + doc_rev}, callback);
+  return request({type: 'DELETE', url: 'api/' + doc_id + '/' + attachment + '?rev=' + doc_rev}, callback);
 }
 app.myChanges = [];
 
@@ -190,7 +188,7 @@ app.changes = function(since, options) {
       since : since
     }
     request(
-      {url: "./api/_changes?" + param(opts)},
+      {url: "api/_changes?" + param(opts)},
       options.success
     );
   }
@@ -198,7 +196,7 @@ app.changes = function(since, options) {
   if (since) {
     getChangesSince();
   } else {
-    request({url: './api'}, function(error, info) {
+    request({url: 'api'}, function(error, info) {
       since = info.update_seq;
       getChangesSince();
     });
@@ -596,7 +594,7 @@ var uploadFile = function (file, index, callback) {
   var xhr = new XMLHttpRequest(),
     upload = xhr.upload,
     start_time = new Date().getTime(),
-    url = './api/' +  viewModel.children()[0]._id + '/' + file.name + '?rev=' + viewModel.children()[0]._rev;
+    url = 'api/' +  viewModel.children()[0]._id + '/' + file.name + '?rev=' + viewModel.children()[0]._rev;
 
   upload.index = index;
   upload.file = file;
