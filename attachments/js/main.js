@@ -273,7 +273,7 @@ var viewModel = {
     attachments: ko.observableArray(),
     newItemLoading: ko.observable(false),
     statusMessage: ko.observable(''),
-    search: ko.observable(''),
+    search: ko.observable('Search...'),
     searching: ko.observable(false),
     searchItems: ko.observableArray()
 }
@@ -295,12 +295,12 @@ viewModel.newItem.subscribe(function(newValue) {
 });
 
 viewModel.search.subscribe(function(term) {
+    viewModel.searchItems.splice(0, viewModel.searchItems().length);
     if ($.trim(term) == '') {
         return;
     }
     var $def = app.view('search', {startkey: [term], endkey: [term, 'ZZZ'], include_docs: true},
       function(error, data) {
-        viewModel.searchItems.splice(0, viewModel.searchItems().length);
         if (!error && data.rows.length > 0) {
           var notes = [], note = {};
           for (var i = 0; i < data.rows.length; i++) {
@@ -308,7 +308,7 @@ viewModel.search.subscribe(function(term) {
             if (note._id !== key[1]) { // note goes first
               note = {_id: key[1], children: [data.rows[i].doc]};
               notes.push(note)
-            } else if (data.rows[i].doc._id != note._id) { // skip note if it also matches
+            } else if (data.rows[i].doc._id != note._id) { // skip repeating notes
               note.children.push(data.rows[i].doc)
             }
           }
@@ -655,7 +655,7 @@ function stripHtml(html)
 var run = function() {
     ko.applyBindings(viewModel);
     editor = new TINY.editor.edit('editor',{
-      el:$('header > div')[0],
+      el:$('#header')[0],
       controls:['bold', 'italic', 'underline', 'strikethrough', '|', 'subscript', 'superscript', '|', 'orderedlist', 'unorderedlist', '|' ,'outdent' ,'indent', '|', 'leftalign', 'centeralign', 'rightalign', 'blockjustify', '|', 'unformat', '|', 'undo', 'redo', 'n', 'font', 'size', 'style', '|', 'image', 'hr', 'link', 'unlink', '|', 'cut', 'copy', 'paste', '|', 'source', 'done'], // available options, a '|' represents a divider and an 'n' represents a new row
       fonts:['Verdana','Arial','Georgia','Trebuchet MS'],  // array of fonts to display
       xhtml:true, // generate XHTML vs HTML

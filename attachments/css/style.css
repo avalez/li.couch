@@ -15,10 +15,16 @@ header {
     background-color: #FAFAFA;
     width: 100%;
 }
-header > div {
+#search {
+    float: left;
+    margin: 39px 0 0 6px;
+    width: 250px;
+}
+#header {
     margin: auto;
     position: relative;
-    width: 80%;
+    margin-left: 270px;
+    width: 960px;
 }
 header #status {
     color: #707D8F;
@@ -69,21 +75,28 @@ h1 {
     font-size: 42px;
 }
 ul.notes, ul.attachments {
-    border-top: 1px solid #DDDDDD;
     list-style-type: none;
-    padding: 10px;
-    margin: auto;
-    width: 80%;
+    padding: 0 6px 0 6px;
+    margin: 0;
+}
+ul.attachments {
+  border-top: 1px solid #DDDDDD;
+  padding-top: 10px;
 }
 li.notes {
-    display: inline-block;
-    border-right: 1px solid #DDDDDD;
-    margin: 5px 5px 0 0;
-    padding: 0 10px 0 0;
+    margin: 5px;
 }
 li.attachment {
     display: inline-block;
     padding-right: 10px;
+}
+#main {
+  display: inline-block;
+  width: 960px;
+}
+#sidebar {
+  vertical-align: top;
+  display: inline-block;
 }
 a {
     color: #CCCCCC;
@@ -123,9 +136,7 @@ input[type="checkbox"] {
     visibility: hidden;
 }
 #page #list {
-    margin: auto;
     padding: 0;
-    width: 80%;
 }
 #page #list > div {
     background-color: #FAFAFA;
@@ -188,7 +199,7 @@ input[type="checkbox"] {
 #page #list > div > div.add:hover {
     background-color: #FFFFFF;
 }
-input#new, input[type="password"], input.token-input {
+input#new, input[type="password"], input.token-input, #search > input {
     border: 0;
     padding: 0;
     margin: 3px;
@@ -197,7 +208,7 @@ input#new.disabled, input.disabled[type="password"], input.token-input.disabled 
     background-color: #F0F0F0;
     color: #CCCCCC;
 }
-#new-wrapper {
+#new-wrapper, #search {
     display: inline-block;
     border: 1px solid #DDDDDD;
     padding: 0;
@@ -205,10 +216,10 @@ input#new.disabled, input.disabled[type="password"], input.token-input.disabled 
     background-color: white;
     box-shadow: 0 1px 2px #DDDDDD;
 }
-#new-wrapper.focused {
+#new-wrapper.focused, #search > input.focused {
     box-shadow: 0 2px 8px #DDDDDD;
 }
-#new-wrapper input#new {
+#new-wrapper input#new, #search > input {
     cursor: text;
     width: 243px;
     font-size: 16px;
@@ -369,5 +380,4 @@ div.password .close:hover {
 }
 .loading {
     background: url('../images/loading.gif') right center no-repeat;
-    //background: url('../images/ui-anim_basic_16x16.gif') right center no-repeat;
 }

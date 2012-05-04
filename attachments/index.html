@@ -30,9 +30,9 @@
 
 <body>
 <header>
-  <div>
+  <div id="search"><input type="text" maxlength="256" data-bind="value: search, css: {loading: searching}, attr: {readonly: searching}"/></div>
+  <div id="header">
     <div id="status" data-bind="html: statusMessage"></div>
-    <div id="status"><input id="new" type="text" maxlength="256" data-bind="value: search, css: {loading: searching}, attr: {readonly: searching}"/></div>
     <!-- ko if: (typeof children()[0] != 'undefined' && children()[0]._id != 'root' && children()[0].parent_id != 'root') -->
     <a data-bind="attr: {href: '#/' + children()[0].parent_id}" title="Up">&uArr;</a>
     <!-- /ko -->
@@ -43,13 +43,7 @@
 </header>
 
 <div id="page" style="display:block">
-    <div id="list" data-bind='template: {name: "todo-template", foreach: children}'></div>
-    <ul class="attachments" data-bind="if: typeof children()[0] != 'undefined'">
-      <input type="file" id="files" name="files[]" data-bind="event: {change: handleFileSelect}"/>
-      <!-- ko foreach: attachments -->
-      <li class="attachment"><a data-bind="text: name, attr: {href: app.baseUrl + '../../api/' + $parent.children()[0]._id + '/' + name}"/></li><a data-bind="click: remove">&#x2717;</a>
-      <!-- /ko -->
-    </ul>
+  <div id="sidebar">
     <ul class="notes" data-bind="if: typeof children()[0] != 'undefined'">
       <!-- ko foreach: notes -->
       <li class="notes"><a data-bind="html: name, attr: {href: '#/' + _id}"></a></li>
@@ -58,7 +52,16 @@
           <input id="new" type="text" maxlength="256" data-bind="value: newItem, css: {loading: newItemLoading}, attr: {readonly: newItemLoading}"/>
       </li>
     </ul>
-
+  </div>
+  <div id="main">
+    <div id="list" data-bind='template: {name: "todo-template", foreach: children}'></div>
+    <ul class="attachments" data-bind="if: typeof children()[0] != 'undefined'">
+      <!-- ko foreach: attachments -->
+      <li class="attachment"><a data-bind="text: name, attr: {href: app.baseUrl + '../../api/' + $parent.children()[0]._id + '/' + name}"/></li><a data-bind="click: remove">&#x2717;</a>
+      <!-- /ko -->
+      <input type="file" id="files" name="files[]" data-bind="event: {change: handleFileSelect}"/>
+    </ul>
+  </div>
 </div>
 
 <div id="not-found" style="display: none">
@@ -72,6 +75,7 @@
     <!-- ko foreach: children -->
     <div data-bind="html: name"></div>
     <!-- /ko -->
+    <hr/>
     <!-- /ko -->
 </div>
 
