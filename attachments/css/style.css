@@ -2,15 +2,15 @@ body {
     background-color: #FAFAFA;
     font-family: 'Lucida Grande',Arial,sans-serif;
     margin: 0;
-    padding-top: 65px;
+
 }
 header {
     color: #DDDDDD;
     display: block;
     font-size: 16px;
-    position: fixed;
     left: 0;
-    top: 0;
+    top: 25px;
+    position: absolute;
     z-index: 10000;
     background-color: #FAFAFA;
     width: 100%;
@@ -110,6 +110,7 @@ input[type="checkbox"] {
 }
 #page {
     width: 100%;
+    margin-top: 70px;
 }
 #page label, #page label a, #page label a:visited {
     color: #3D4A5C;
