@@ -64,6 +64,10 @@ app.view = function (view_id, params, callback) {
   return request({url: '_view/' + view_id + '?' + param(params)}, callback);
 }
 
+app.list = function(list_id, view_id, params, callback) {
+  return request({url: '_list/' + list_id + '/' + view_id + '?' + param(params)}, callback);
+}
+
 app.create = function(doc, callback) {
   return $.when(app.uuid(doc._id)).pipe(function(uuid) {
     doc._id = uuid; // new or existing
@@ -505,11 +509,11 @@ viewModel.children.subscribe(indexMaintainance, viewModel);
 function observableArray(data) {
   var array = [];
   $(data.rows).each(function(i, row) {
-      row.doc.index = ko.observable(i);
-      if (typeof row.doc.order == 'undefined') {
-        row.doc.order = i; // TODO: getOrder
+      row.value.index = ko.observable(i);
+      if (typeof row.value.order == 'undefined') {
+        row.value.order = i; // TODO: getOrder
       }
-      array.push(observable(row.doc))      
+      array.push(observable(row.value))      
   })  
   return array;
 }
@@ -679,13 +683,13 @@ var load = function() {
     if (viewModel.children().length == 0 || viewModel.children()[0]._id != parent_id) {
         viewModel.statusMessage('Loading...');
         viewModel.reset();
-        var $def1 = app.view('note', {startkey: [parent_id], endkey: [parent_id, 9007199254740992], include_docs: true},
+        var $def1 = app.list('authenticated', 'note', {startkey: [parent_id], endkey: [parent_id, 9007199254740992], include_docs: true},
         function(error, data) {
-            if (!error && data.rows.length > 0 && data.rows[0].doc.type == 'note') {
+            if (!error && data.rows.length > 0 && data.rows[0].value.type == 'note') {
                 $('div#not-found').hide();
                 viewModel.children.pushAll(observableArray(data, observable));
                 setTitle(viewModel.children()[0]);
-                viewModel.attachments.pushAll(observableAttachments(data.rows[0].doc));
+                viewModel.attachments.pushAll(observableAttachments(data.rows[0].value));
             } else {
                 viewModel.root.set({_id: parent_id, name: 'Untitled', type: 'note', order: 0});
                 if (parent_id != 'root') {

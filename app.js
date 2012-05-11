@@ -8,8 +8,10 @@ ddoc =
     [ {from:"/", to:'index.html'}
     , {from:"/#/*", to:'index.html'}
     , {from:"/api", to:'../../'}
+    , {from:"/api/_all_docs", to:'dummy'}
     , {from:"/api/*", to:'../../*'}
 //    , {from:"_uuids", to:'../../../_uuids'}
+//    , {from:"/_view/*", to:'dummy'}
     , {from:"/*", to:'*'}
     ]
   }
@@ -19,9 +21,9 @@ ddoc.views = {
   note : {
     map : function(doc) {
       if (doc.type == 'note') {
-        emit([doc._id, 0])
+        emit([doc._id, 0], doc)
       } else /* section */ {
-        emit([doc.parent_id, doc.order])
+        emit([doc.parent_id, doc.order], doc)
       }
     }
   },
@@ -76,7 +78,23 @@ ddoc.validate_doc_update = function (newDoc, oldDoc, userCtx) {
   if (newDoc._deleted === true &&  ['root', '3792703880258a53d599789308001457'].indexOf(newDoc._id) !== -1) {
     throw "It's not allowed to delete this element.";
   } 
-}
+};
+
+ddoc.lists = {
+  authenticated : function(head, req) {
+    var row;
+    send('{"rows":[' + "\n");
+    if (req.userCtx.name) {
+      if (row = getRow()) {
+        send(JSON.stringify(row))
+      }
+      while (row = getRow()) {
+        send(",\n" + JSON.stringify(row))
+      }
+    }
+    send("\n]}");
+  },
+};
 
 couchapp.loadAttachments(ddoc, path.join(__dirname, 'attachments'));
 
