@@ -92,6 +92,11 @@ app.removeAttachment = function(doc_id, doc_rev, attachment, callback) {
   app.myChanges.push(doc_id);
   return request({type: 'DELETE', url: 'api/' + doc_id + '/' + attachment + '?rev=' + doc_rev}, callback);
 }
+
+app.authenticate = function(username, password, callback) {
+  return request({type: 'POST', url: '_session', dataType: 'text', data: param({name: username, password: password})}, callback);
+}
+
 app.myChanges = [];
 
 // check if change has any modification from outside,
@@ -273,7 +278,8 @@ var viewModel = {
     statusMessage: ko.observable(''),
     search: ko.observable(''),
     searching: ko.observable(false),
-    searchItems: ko.observableArray()
+    searchItems: ko.observableArray(),
+    password: ko.observable('')
 }
 
 viewModel.newItem.subscribe(function(newValue) {
@@ -315,6 +321,18 @@ viewModel.search.subscribe(function(term) {
         }
     });
 });
+
+viewModel.password.subscribe(function(term) {
+    if ($.trim(term) == '') {
+        return;
+    }
+    app.authenticate('test', term, function(error, data) {
+      if (!error) {
+        $('#password-authenticate').hide();
+      }
+
+    })
+})
 
 viewModel.reset = function() {
   viewModel.children.splice(0, viewModel.children().length);
@@ -640,6 +658,10 @@ function handleFileSelect(ko, evt) {
     }
   }
   evt.target.value = '';
+}
+
+function login(ko, evt) {
+  $('#password-authenticate').show();
 }
 
 // http://stackoverflow.com/questions/822452/strip-html-from-text-javascript

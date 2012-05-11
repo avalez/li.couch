@@ -38,6 +38,7 @@
     <!-- ko if: (typeof children()[0] != 'undefined' && children()[0]._id != 'root') -->
     <a data-bind="attr: {href: '#/'}" title="Home">&#x2302;</a>
     <!-- /ko -->
+    <a id="lock" data-bind="click: login"><div></div></a>
   </div>
 </header>
 
@@ -88,7 +89,7 @@
 <div id="password-authenticate" class="overlay" style="display:none">
     <div class="password">
         <label>Password?</label>
-        <input type="password" name="" value=""/>
+        <input type="password" data-bind="value: password" />
     </div>
 </div>
 
