@@ -8,4 +8,4 @@ To run it yourself, push it into you couchdb, e.g:
 
     $ node_modules/couchapp/bin.js push app.js http://your.iriscouch.com/db
    
-And open it in your browser, e.g.: http://your.iriscouch.com/db/_design/app/index.html or http://your.iriscouch.com, if you enabled rewrites.
+And open it in your browser, e.g.: http://your.iriscouch.com/db/_design/app/_rewrite/ or http://your.iriscouch.com, if you enabled vhosts rewrites.
